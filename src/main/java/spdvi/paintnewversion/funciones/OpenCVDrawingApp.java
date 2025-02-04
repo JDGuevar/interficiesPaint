@@ -9,14 +9,23 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.Serializable;
 
-public class OpenCVDrawingApp extends JPanel {
+public class OpenCVDrawingApp extends JPanel implements Serializable{
     private Mat image;
     private BufferedImage bufferedImage;
     private java.awt.Point lastPoint;
+    private int ticknes=1;
+    private String imagePath="images/moon.jpg";
+    
+    public void setTicknes(int t){
+        ticknes=t;
+    }
 
-    public OpenCVDrawingApp(String imagePath) {
-        File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
+    public OpenCVDrawingApp() {
+        setSize(400, 400);
+        setVisible(true);
+        File dll = new File("data/opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         image = Imgcodecs.imread(imagePath);
         bufferedImage = matToBufferedImage(image);
@@ -31,7 +40,7 @@ public class OpenCVDrawingApp extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null) {
                     Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                            new org.opencv.core.Point(e.getX(), e.getY()), new Scalar(0, 0, 255), 2);
+                            new org.opencv.core.Point(e.getX(), e.getY()), new Scalar(0, 0, 255), ticknes);
                     lastPoint = e.getPoint();
                     bufferedImage = matToBufferedImage(image);
                     repaint();
@@ -59,15 +68,5 @@ public class OpenCVDrawingApp extends JPanel {
         matrgb.get(0, 0, data);
         image.getRaster().setDataElements(0, 0, width, height, data);
         return image;
-    }
-
-    public static void main(String[] args) {
-        String imagePath = "images\\faces.png";
-        JFrame frame = new JFrame("OpenCV Drawing App");
-        OpenCVDrawingApp panel = new OpenCVDrawingApp(imagePath);
-        frame.add(panel);
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
     }
 }

@@ -50,7 +50,7 @@ public class WebcamCaptureApp extends JFrame {
     }
 
     public void start() {
-        File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
+        File dll = new File("data/opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         capture = new VideoCapture(0);
         frame = new Mat();
