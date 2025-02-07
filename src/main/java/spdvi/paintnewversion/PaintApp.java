@@ -31,6 +31,11 @@ public class PaintApp extends JFrame {
         colorButton.addActionListener(e -> changeColor());
         buttonPanel.add(colorButton);
 
+        // Botón para cambiar de grosor
+        JButton grosorButton = new JButton("Grosor");
+        grosorButton.addActionListener(e -> cambiarGrosor());
+        buttonPanel.add(grosorButton);
+
         // Botón para capturar imagen desde la webcam
         JButton webcamButton = new JButton("Capturar Webcam");
         webcamButton.addActionListener(e -> captureImage());
@@ -57,6 +62,23 @@ public class PaintApp extends JFrame {
         });
     }
 
+    //Método para cambiar el grosor
+    private void cambiarGrosor() {
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 20, 3); // Rango de 1 a 20, valor inicial 3
+        slider.setMajorTickSpacing(5);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+
+        int option = JOptionPane.showConfirmDialog(this, slider, "Seleccionar Grosor del Pincel",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+            int selectedSize = slider.getValue();
+            drawingPanel.setBrushWidth(selectedSize); // Método en DrawingPanel para cambiar el grosor
+        }
+    }
+
     // Método para cambiar el color del pincel
     private void changeColor() {
         Color newColor = JColorChooser.showDialog(this, "Selecciona un color", drawingPanel.getBrushColor());
@@ -70,7 +92,7 @@ public class PaintApp extends JFrame {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            drawingPanel.saveImage(file.getAbsolutePath());
+            drawingPanel.saveImage(file.getAbsolutePath() + ".jpg");
             JOptionPane.showMessageDialog(this, "Imagen guardada correctamente.");
         }
     }

@@ -19,6 +19,7 @@ class DrawingPanel extends JPanel {
 
     private BufferedImage image;
     private Color brushColor = Color.BLACK;
+    private int brushWidth = 1;
     private Point lastPoint;
 
     public DrawingPanel() {
@@ -36,7 +37,7 @@ class DrawingPanel extends JPanel {
                 if (lastPoint != null) {
                     Graphics2D g2 = image.createGraphics();
                     g2.setColor(brushColor);
-                    g2.setStroke(new BasicStroke(3));
+                    g2.setStroke(new BasicStroke(brushWidth));
                     g2.drawLine(lastPoint.x, lastPoint.y, e.getX(), e.getY());
                     g2.dispose();
                     lastPoint = e.getPoint();
@@ -60,6 +61,14 @@ class DrawingPanel extends JPanel {
 
     public Color getBrushColor() {
         return brushColor;
+    }
+
+    public int getBrushWidth() {
+        return brushWidth;
+    }
+
+    public void setBrushWidth(int brushWidth) {
+        this.brushWidth = brushWidth;
     }
 
     public void loadImage(BufferedImage img) {
