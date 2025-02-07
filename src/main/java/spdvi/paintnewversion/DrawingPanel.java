@@ -12,6 +12,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
@@ -21,6 +22,8 @@ class DrawingPanel extends JPanel {
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
     private Point lastPoint;
+    private ArrayList<BufferedImage> undoStack = new ArrayList<>();
+    private ArrayList<BufferedImage> redoStack = new ArrayList<>();
 
     public DrawingPanel() {
         setPreferredSize(new Dimension(600, 400));
@@ -35,6 +38,8 @@ class DrawingPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null) {
+                    saveToUndoStack();
+
                     Graphics2D g2 = image.createGraphics();
                     g2.setColor(brushColor);
                     g2.setStroke(new BasicStroke(brushWidth));
@@ -81,6 +86,38 @@ class DrawingPanel extends JPanel {
             ImageIO.write(image, "PNG", new File(path));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void saveToUndoStack() {
+        if (undoStack.size() > 10) { // Limitamos el historial a 10 estados para no consumir mucha memoria
+            undoStack.remove(0);
+        }
+        redoStack.clear(); // Limpiamos la pila de rehacer al guardar un nuevo estado
+        undoStack.add(copyImage(image));
+    }
+
+    private BufferedImage copyImage(BufferedImage img) {
+        BufferedImage copy = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+        Graphics2D g = copy.createGraphics();
+        g.drawImage(img, 0, 0, null);
+        g.dispose();
+        return copy;
+    }
+
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            redoStack.add(copyImage(image)); // Guardamos la imagen actual en redoStack
+            image = undoStack.remove(undoStack.size() - 1); // Restauramos la última imagen guardada
+            repaint();
+        }
+    }
+
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            undoStack.add(copyImage(image)); // Guardamos la imagen actual en undoStack
+            image = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
+            repaint();
         }
     }
 
