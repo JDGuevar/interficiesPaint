@@ -67,8 +67,9 @@ class DrawingPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null && shapeToDraw.equals("NONE")) {
+                    Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
                     Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                            new org.opencv.core.Point(e.getX(), e.getY()), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), brushWidth);
+                            new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
                     lastPoint = e.getPoint();
                     bufferedImage = matToBufferedImage(image);
                     repaint();
@@ -189,13 +190,14 @@ class DrawingPanel extends JPanel {
     private BufferedImage matToBufferedImage(Mat mat) {
         int width = mat.width();
         int height = mat.height();
+        int channels = mat.channels();
         
         Mat matrgb = new Mat();
         
         Imgproc.cvtColor(mat, matrgb, Imgproc.COLOR_BGR2RGB);
         
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        byte[] data = new byte[width * height * (int) mat.elemSize()];
+        byte[] data = new byte[width * height * channels];
         matrgb.get(0, 0, data);
         image.getRaster().setDataElements(0, 0, width, height, data);
         return image;
@@ -205,12 +207,13 @@ class DrawingPanel extends JPanel {
         if (image == null) {
             image = new Mat(getHeight(), getWidth(), CvType.CV_8UC3, new Scalar(255, 255, 255));
         }
+        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
         switch (shapeToDraw) {
             case "CIRCLE":
-                Imgproc.circle(image, new org.opencv.core.Point(x, y), 25, new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), -1);
+                Imgproc.circle(image, new org.opencv.core.Point(x, y), 25, color, -1);
                 break;
             case "RECTANGLE":
-                Imgproc.rectangle(image, new org.opencv.core.Point(x - 25, y - 25), new org.opencv.core.Point(x + 25, y + 25), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), -1);
+                Imgproc.rectangle(image, new org.opencv.core.Point(x - 25, y - 25), new org.opencv.core.Point(x + 25, y + 25), color, -1);
                 break;
             case "ARROW":
                 drawArrow(x, y);
@@ -225,7 +228,7 @@ class DrawingPanel extends JPanel {
         int arrowHeight = 20;
         int arrowBackWidth = 60;
         int arrowBackHeight = 3;
-
+    
         org.opencv.core.Point[] points = new org.opencv.core.Point[7];
         points[0] = new org.opencv.core.Point(x, y);
         points[1] = new org.opencv.core.Point(x - arrowWidth, y - arrowHeight);
@@ -234,8 +237,9 @@ class DrawingPanel extends JPanel {
         points[4] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth) , y + arrowHeight / arrowBackHeight);
         points[5] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight / arrowBackHeight);
         points[6] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight);
-
+    
         MatOfPoint matOfPoint = new MatOfPoint(points);
-        Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()));
+        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
+        Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), color);
     }
 }
