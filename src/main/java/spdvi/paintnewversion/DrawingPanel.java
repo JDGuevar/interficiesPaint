@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Mat;
 import org.opencv.core.CvType;
 import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
 
@@ -50,6 +52,7 @@ class DrawingPanel extends JPanel {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         setPreferredSize(new Dimension(600, 400));
+        image = new Mat(400, 600, CvType.CV_8UC3, new Scalar(255, 255, 255));
         createEmptyCanvas();
 
         addMouseListener(new MouseAdapter() {
@@ -64,12 +67,10 @@ class DrawingPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null && shapeToDraw.equals("NONE")) {
-                    Graphics2D g2 = bufferedImage.createGraphics();
-                    g2.setColor(brushColor);
-                    g2.setStroke(new BasicStroke(brushWidth));
-                    g2.drawLine(lastPoint.x, lastPoint.y, e.getX(), e.getY());
-                    g2.dispose();
+                    Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+                            new org.opencv.core.Point(e.getX(), e.getY()), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), brushWidth);
                     lastPoint = e.getPoint();
+                    bufferedImage = matToBufferedImage(image);
                     repaint();
                 }
             }
@@ -86,11 +87,9 @@ class DrawingPanel extends JPanel {
     }
 
     private void createEmptyCanvas() {
-        bufferedImage = new BufferedImage(600, 400, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = bufferedImage.createGraphics();
-        g2.setColor(Color.WHITE);
-        g2.fillRect(0, 0, 600, 400);
-        g2.dispose();
+        image.setTo(new Scalar(255, 255, 255));
+        bufferedImage = matToBufferedImage(image);
+        repaint();
     }
 
     public void setBrushColor(Color color) {
@@ -113,17 +112,35 @@ class DrawingPanel extends JPanel {
         this.brushWidth = brushWidth;
     }
 
-    public void loadImage(BufferedImage img) {
-        bufferedImage = img;
+    public void loadImage(String imagePath) {
+        image = Imgcodecs.imread(imagePath);
+        if (image.empty()) {
+            System.err.println("Error: No se pudo cargar la imagen desde " + imagePath);
+            return;
+        }
+        bufferedImage = matToBufferedImage(image);
         repaint();
     }
 
-    public void saveImage(String path) {
-        try {
-            ImageIO.write(bufferedImage, "PNG", new File(path));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void loadImage(BufferedImage img) {
+        if (img == null) {
+            System.err.println("Error: La imagen proporcionada es nula");
+            return;
         }
+        this.bufferedImage = img;
+        this.image = bufferedImageToMat(img);
+        repaint();
+    }
+    
+    private Mat bufferedImageToMat(BufferedImage bi) {
+        Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        mat.put(0, 0, data);
+        return mat;
+    }
+
+    public void saveImage(String path) {
+        Imgcodecs.imwrite(path, image);
     }
 
     private void saveToUndoStack() {
