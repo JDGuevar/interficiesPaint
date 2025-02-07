@@ -24,6 +24,7 @@ class DrawingPanel extends JPanel {
     private Point lastPoint;
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
+    private boolean cuentagotasMode = false;
 
     public DrawingPanel() {
         setPreferredSize(new Dimension(600, 400));
@@ -31,13 +32,21 @@ class DrawingPanel extends JPanel {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                lastPoint = e.getPoint();
+                if (cuentagotasMode) {
+                    Point point = e.getPoint();
+                    Color color = getColorAtPoint(point);
+                    setBrushColor(color);
+                    cuentagotasMode = false; // Desactivar modo cuentagotas después de seleccionar el color
+                } else {
+                    saveToUndoStack();
+                    lastPoint = e.getPoint();
+                }
             }
         });
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                if (lastPoint != null) {
+                if (lastPoint != null && !cuentagotasMode) {
                     Graphics2D g2 = image.createGraphics();
                     g2.setColor(brushColor);
                     g2.setStroke(new BasicStroke(brushWidth));
@@ -48,15 +57,6 @@ class DrawingPanel extends JPanel {
                 }
             }
         });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                saveToUndoStack();
-                lastPoint = e.getPoint();
-            }
-
-        });
-
     }
 
     private void createEmptyCanvas() {
@@ -131,6 +131,28 @@ class DrawingPanel extends JPanel {
             image = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
             repaint();
         }
+    }
+
+    public void setCuentagotasMode(boolean mode) {
+        this.cuentagotasMode = mode;
+    }
+
+    private Color getColorAtPoint(Point point) {
+        BufferedImage image = getBufferedImage();
+        if (image != null) {
+            int rgb = image.getRGB(point.x, point.y);
+            return new Color(rgb);
+        }
+        return Color.BLACK; // Color por defecto si no hay imagen
+    }
+
+    private BufferedImage getBufferedImage() {
+        // Método para obtener la imagen actual del panel
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+        paint(g2d);
+        g2d.dispose();
+        return image;
     }
 
     @Override

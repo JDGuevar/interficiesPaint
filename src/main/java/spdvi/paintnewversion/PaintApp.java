@@ -31,6 +31,11 @@ public class PaintApp extends JFrame {
         colorButton.addActionListener(e -> changeColor());
         buttonPanel.add(colorButton);
 
+        //Botón para la función cuentagotas
+        JButton cuentagotasButton = new JButton("Cuentagotas");
+        cuentagotasButton.addActionListener(e -> activaCuentagotas());
+        buttonPanel.add(cuentagotasButton);
+
         // Botón para cambiar de grosor
         JButton grosorButton = new JButton("Grosor");
         grosorButton.addActionListener(e -> cambiarGrosor());
@@ -119,6 +124,10 @@ public class PaintApp extends JFrame {
         if (newColor != null) {
             drawingPanel.setBrushColor(newColor);
         }
+    }
+
+    private void activaCuentagotas() {
+        drawingPanel.setCuentagotasMode(true);
     }
     private void loadImage() {
         JFileChooser fileChooser = new JFileChooser();
