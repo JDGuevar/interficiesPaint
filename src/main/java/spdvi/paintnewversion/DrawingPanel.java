@@ -47,7 +47,7 @@ class DrawingPanel extends JPanel {
     private String shapeToDraw = "NONE";
 
     public DrawingPanel() {
-        File dll = new File("data/opencv_java490.dll");
+        File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         setPreferredSize(new Dimension(600, 400));
         createEmptyCanvas();
