@@ -2,7 +2,6 @@ package spdvi.paintnewversion;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -13,29 +12,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Mat;
-import org.opencv.core.CvType;
-import org.opencv.core.Scalar;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-class DrawingPanel extends JPanel {
+public class DrawingPanel extends JPanel {
 
     private Mat image;
     private BufferedImage bufferedImage;
@@ -49,7 +36,6 @@ class DrawingPanel extends JPanel {
     public DrawingPanel() {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
-        setPreferredSize(new Dimension(600, 400));
         createEmptyCanvas();
 
         addMouseListener(new MouseAdapter() {
