@@ -5,7 +5,7 @@
 package spdvi.paintnewversion.funciones;
 
 import java.io.File;
-import org.opencv.core.Core;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
@@ -24,7 +24,7 @@ import org.opencv.objdetect.Objdetect;
 public class FaceDetector {
     
     public static void main(String[] args){
-        File dll = new File("data/opencv_java490.dll");
+        File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         Mat image = Imgcodecs.imread("images\\abdullah.jpg");
         // mètode detector
