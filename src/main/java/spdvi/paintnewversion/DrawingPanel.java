@@ -104,6 +104,11 @@ class DrawingPanel extends JPanel {
         undoStack.add(copyImage(image));
     }
 
+    public void clear() {
+        createEmptyCanvas();
+        repaint();
+    }
+
     private BufferedImage copyImage(BufferedImage img) {
         BufferedImage copy = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
         Graphics2D g = copy.createGraphics();

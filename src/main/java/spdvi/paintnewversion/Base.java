@@ -140,7 +140,6 @@ public class Base extends JFrame {
             captureDialog.setVisible(true);
         });
     }
-
     // Método para cambiar el color del pincel
     private void changeColor() {
         Color newColor = JColorChooser.showDialog(this, "Selecciona un color", drawingPanel.getBrushColor());

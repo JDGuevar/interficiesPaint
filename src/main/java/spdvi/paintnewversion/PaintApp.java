@@ -1,12 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+// src/main/java/spdvi/paintnewversion/PaintApp.java
 package spdvi.paintnewversion;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class PaintApp extends JFrame {
 
@@ -36,10 +36,20 @@ public class PaintApp extends JFrame {
         grosorButton.addActionListener(e -> cambiarGrosor());
         buttonPanel.add(grosorButton);
 
+        // Botón para cargar imagen
+        JButton loadImageButton = new JButton("Cargar Imagen");
+        loadImageButton.addActionListener(e -> loadImage());
+        buttonPanel.add(loadImageButton);
+
         // Goma
         JButton gomaButton = new JButton("Goma");
         gomaButton.addActionListener(e -> activaGoma());
         buttonPanel.add(gomaButton);
+
+        //Boton para borrar todo
+        JButton clearButton = new JButton("Borrar");
+        clearButton.addActionListener(e -> drawingPanel.clear());
+        buttonPanel.add(clearButton);
 
         // HACER y DESHACER
         JButton undoButton = new JButton("Deshacer");
@@ -73,6 +83,10 @@ public class PaintApp extends JFrame {
         SwingUtilities.invokeLater(() -> {
             WebcamCaptureDialog captureDialog = new WebcamCaptureDialog(this, drawingPanel);
             captureDialog.setVisible(true);
+            BufferedImage capturedImage = captureDialog.getCapturedImage();
+            if (capturedImage != null) {
+                drawingPanel.loadImage(capturedImage);
+            }
         });
     }
 
@@ -106,7 +120,26 @@ public class PaintApp extends JFrame {
             drawingPanel.setBrushColor(newColor);
         }
     }
-
+    private void loadImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            System.out.println("Archivo seleccionado: " + file.getAbsolutePath());
+            if (file.exists() && file.canRead()) {
+                try {
+                    BufferedImage img = ImageIO.read(file);
+                    drawingPanel.loadImage(img);
+                    System.out.println("Imagen cargada correctamente.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("No se puede leer el archivo: " + file.getAbsolutePath());
+            }
+        } else {
+            System.out.println("No se seleccionó ningún archivo.");
+        }
+    }
     // Método para guardar la imagen
     private void saveImage() {
         JFileChooser fileChooser = new JFileChooser();
