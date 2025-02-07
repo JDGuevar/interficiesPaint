@@ -128,6 +128,7 @@ public class PaintApp extends JFrame {
             drawingPanel.setBrushColor(newColor);
         }
     }
+
     private void loadImage() {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -148,6 +149,7 @@ public class PaintApp extends JFrame {
             System.out.println("No se seleccionó ningún archivo.");
         }
     }
+
     // Método para guardar la imagen
     private void saveImage() {
         JFileChooser fileChooser = new JFileChooser();

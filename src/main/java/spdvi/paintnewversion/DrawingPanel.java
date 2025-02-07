@@ -20,22 +20,9 @@ import javax.swing.JPanel;
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Mat;
-import org.opencv.core.CvType;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 
 class DrawingPanel extends JPanel {
 
@@ -52,13 +39,14 @@ class DrawingPanel extends JPanel {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         setPreferredSize(new Dimension(600, 400));
-        image = new Mat(400, 600, CvType.CV_8UC3, new Scalar(255, 255, 255));
         createEmptyCanvas();
 
         addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent e) {
+                saveToUndoStack();
                 lastPoint = e.getPoint();
-                if(!shapeToDraw.equals("NONE")) {
+                if (!shapeToDraw.equals("NONE")) {
                     drawShape(e.getX(), e.getY());
                 }
             }
@@ -76,19 +64,10 @@ class DrawingPanel extends JPanel {
                 }
             }
         });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                saveToUndoStack();
-                lastPoint = e.getPoint();
-            }
-
-        });
-
     }
 
     private void createEmptyCanvas() {
-        image.setTo(new Scalar(255, 255, 255));
+        image = new Mat(400, 600, CvType.CV_8UC3, new Scalar(255, 255, 255));
         bufferedImage = matToBufferedImage(image);
         repaint();
     }
@@ -132,7 +111,7 @@ class DrawingPanel extends JPanel {
         this.image = bufferedImageToMat(img);
         repaint();
     }
-    
+
     private Mat bufferedImageToMat(BufferedImage bi) {
         Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
         byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
@@ -169,6 +148,7 @@ class DrawingPanel extends JPanel {
         if (!undoStack.isEmpty()) {
             redoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en redoStack
             bufferedImage = undoStack.remove(undoStack.size() - 1); // Restauramos la última imagen guardada
+            image = bufferedImageToMat(bufferedImage); // Actualizamos el Mat
             repaint();
         }
     }
@@ -177,6 +157,7 @@ class DrawingPanel extends JPanel {
         if (!redoStack.isEmpty()) {
             undoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en undoStack
             bufferedImage = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
+            image = bufferedImageToMat(bufferedImage); // Actualizamos el Mat
             repaint();
         }
     }
@@ -191,11 +172,10 @@ class DrawingPanel extends JPanel {
         int width = mat.width();
         int height = mat.height();
         int channels = mat.channels();
-        
+
         Mat matrgb = new Mat();
-        
         Imgproc.cvtColor(mat, matrgb, Imgproc.COLOR_BGR2RGB);
-        
+
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         byte[] data = new byte[width * height * channels];
         matrgb.get(0, 0, data);
@@ -228,16 +208,16 @@ class DrawingPanel extends JPanel {
         int arrowHeight = 20;
         int arrowBackWidth = 60;
         int arrowBackHeight = 3;
-    
+
         org.opencv.core.Point[] points = new org.opencv.core.Point[7];
         points[0] = new org.opencv.core.Point(x, y);
         points[1] = new org.opencv.core.Point(x - arrowWidth, y - arrowHeight);
-        points[2] = new org.opencv.core.Point(x - arrowWidth , y - arrowHeight / arrowBackHeight);
-        points[3] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth) , y - arrowHeight / arrowBackHeight);
-        points[4] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth) , y + arrowHeight / arrowBackHeight);
-        points[5] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight / arrowBackHeight);
-        points[6] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight);
-    
+        points[2] = new org.opencv.core.Point(x - arrowWidth, y - arrowHeight / arrowBackHeight);
+        points[3] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth), y - arrowHeight / arrowBackHeight);
+        points[4] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth), y + arrowHeight / arrowBackHeight);
+        points[5] = new org.opencv.core.Point(x - arrowWidth, y + arrowHeight / arrowBackHeight);
+        points[6] = new org.opencv.core.Point(x - arrowWidth, y + arrowHeight);
+
         MatOfPoint matOfPoint = new MatOfPoint(points);
         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
         Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), color);
