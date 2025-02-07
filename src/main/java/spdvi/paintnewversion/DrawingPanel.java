@@ -22,6 +22,10 @@ class DrawingPanel extends JPanel {
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
     private Point lastPoint;
+    private double zoomFactor = 1.0;
+    private double zoomIncrement = 0.1;
+    private int zoomCenterX = 0, zoomCenterY = 0;
+
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
 
@@ -55,6 +59,16 @@ class DrawingPanel extends JPanel {
                 lastPoint = e.getPoint();
             }
 
+        });
+
+        addMouseWheelListener(e -> {
+            int notches = e.getWheelRotation();
+            if (notches < 0) {
+                zoomFactor += zoomIncrement;
+            } else {
+                zoomFactor = Math.max(zoomFactor - zoomIncrement, 0.1); // Evitar zoom negativo
+            }
+            repaint();
         });
 
     }
@@ -131,6 +145,11 @@ class DrawingPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, 0, 0, this);
+        Graphics2D g2 = (Graphics2D) g;
+
+        // Aplicamos la transformación para el zoom
+        g2.translate(zoomCenterX, zoomCenterY);
+        g2.scale(zoomFactor, zoomFactor);
+        g2.drawImage(image, 0, 0, this);
     }
 }
