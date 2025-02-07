@@ -9,8 +9,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Random;
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
@@ -26,9 +28,10 @@ public class Base extends JFrame {
     private Mat frame;
 
     public Base() {
-        drawingPanel = new DrawingPanel();
-        add(drawingPanel);
         initComponents();
+        drawingPanel = new DrawingPanel();
+        drawingPanel.setBounds(10, 10, 600, 400);
+        jPanel1.add(drawingPanel);
     }
 
     @SuppressWarnings("unchecked")
@@ -36,10 +39,10 @@ public class Base extends JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        jButtonColor = new javax.swing.JButton();
+        jButtonWebcam = new javax.swing.JButton();
+        jButtonGuardar = new javax.swing.JButton();
+        jButtonBorrar = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -57,28 +60,28 @@ public class Base extends JFrame {
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        jButton1.setText("Color");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonColor.setText("Color");
+        jButtonColor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonColorActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Webcam");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jButtonWebcam.setText("Webcam");
+        jButtonWebcam.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jButtonWebcamActionPerformed(evt);
             }
         });
 
-        jButton3.setText("Guardar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        jButtonGuardar.setText("Guardar");
+        jButtonGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                jButtonGuardarActionPerformed(evt);
             }
         });
 
-        jButton4.setText("Borrar");
+        jButtonBorrar.setText("Borrar");
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -94,10 +97,10 @@ public class Base extends JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButtonWebcam, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonColor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonBorrar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -106,30 +109,55 @@ public class Base extends JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addComponent(jButtonColor)
                 .addGap(18, 18, 18)
-                .addComponent(jButton2)
+                .addComponent(jButtonWebcam)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton3)
+                .addComponent(jButtonGuardar)
                 .addGap(18, 18, 18)
-                .addComponent(jButton4)
+                .addComponent(jButtonBorrar)
                 .addContainerGap(334, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButtonColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonColorActionPerformed
+        changeColor();
+    }//GEN-LAST:event_jButtonColorActionPerformed
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jButtonWebcamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonWebcamActionPerformed
+        captureImage();
+    }//GEN-LAST:event_jButtonWebcamActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jButtonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGuardarActionPerformed
+        saveImage();
+    }//GEN-LAST:event_jButtonGuardarActionPerformed
 
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void captureImage() {
+        SwingUtilities.invokeLater(() -> {
+            WebcamCaptureDialog captureDialog = new WebcamCaptureDialog(this, drawingPanel);
+            captureDialog.setVisible(true);
+        });
+    }
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    // Método para cambiar el color del pincel
+    private void changeColor() {
+        Color newColor = JColorChooser.showDialog(this, "Selecciona un color", drawingPanel.getBrushColor());
+        if (newColor != null) {
+            drawingPanel.setBrushColor(newColor);
+        }
+    }
 
-    }//GEN-LAST:event_jButton3ActionPerformed
+    // Método para guardar la imagen
+    private void saveImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            drawingPanel.saveImage(file.getAbsolutePath());
+            JOptionPane.showMessageDialog(this, "Imagen guardada correctamente.");
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -167,10 +195,10 @@ public class Base extends JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButtonBorrar;
+    private javax.swing.JButton jButtonColor;
+    private javax.swing.JButton jButtonGuardar;
+    private javax.swing.JButton jButtonWebcam;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;

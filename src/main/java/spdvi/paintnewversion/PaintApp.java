@@ -17,11 +17,14 @@ public class PaintApp extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         drawingPanel = new DrawingPanel();
         add(drawingPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        add(buttonPanel, BorderLayout.WEST);
 
         // Botón para cambiar de color
         JButton colorButton = new JButton("Color");
@@ -38,7 +41,12 @@ public class PaintApp extends JFrame {
         saveButton.addActionListener(e -> saveImage());
         buttonPanel.add(saveButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        for (Component c : buttonPanel.getComponents()) {
+            if (c instanceof JButton) {
+                ((JButton) c).setAlignmentX(Component.CENTER_ALIGNMENT);
+                ((JButton) c).setMaximumSize(new Dimension(150, 40)); // Ajustar tamaño máximo
+            }
+        }
     }
 
     // Método para abrir una ventana emergente de la webcam y capturar imagen

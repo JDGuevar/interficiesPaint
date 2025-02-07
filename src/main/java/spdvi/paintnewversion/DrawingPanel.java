@@ -1,7 +1,5 @@
 package spdvi.paintnewversion;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseListener;
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseMotionListener;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
