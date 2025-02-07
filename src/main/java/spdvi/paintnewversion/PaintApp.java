@@ -36,6 +36,14 @@ public class PaintApp extends JFrame {
         grosorButton.addActionListener(e -> cambiarGrosor());
         buttonPanel.add(grosorButton);
 
+        // Botón para abrir el diálogo de selección de formas
+        JButton shapesButton = new JButton("Formas");
+        shapesButton.addActionListener(e -> {
+            ShapeSelectionDialog dialog = new ShapeSelectionDialog(this, drawingPanel);
+            dialog.setVisible(true);
+        });
+        buttonPanel.add(shapesButton);
+
         // Botón para cargar imagen
         JButton loadImageButton = new JButton("Cargar Imagen");
         loadImageButton.addActionListener(e -> loadImage());

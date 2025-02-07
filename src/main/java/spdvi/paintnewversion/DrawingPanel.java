@@ -16,29 +16,55 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
+
+import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
+
+import org.opencv.core.CvType;
+
+import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Mat;
+import org.opencv.core.CvType;
+import org.opencv.core.Scalar;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
+
 class DrawingPanel extends JPanel {
 
-    private BufferedImage image;
+    private Mat image;
+    private BufferedImage bufferedImage;
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
     private Point lastPoint;
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
+    private String shapeToDraw = "NONE";
 
     public DrawingPanel() {
+        File dll = new File("data/opencv_java490.dll");
+        System.load(dll.getAbsolutePath());
         setPreferredSize(new Dimension(600, 400));
         createEmptyCanvas();
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 lastPoint = e.getPoint();
+                if(!shapeToDraw.equals("NONE")) {
+                    drawShape(e.getX(), e.getY());
+                }
             }
         });
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                if (lastPoint != null) {
-                    Graphics2D g2 = image.createGraphics();
+                if (lastPoint != null && shapeToDraw.equals("NONE")) {
+                    Graphics2D g2 = bufferedImage.createGraphics();
                     g2.setColor(brushColor);
                     g2.setStroke(new BasicStroke(brushWidth));
                     g2.drawLine(lastPoint.x, lastPoint.y, e.getX(), e.getY());
@@ -60,8 +86,8 @@ class DrawingPanel extends JPanel {
     }
 
     private void createEmptyCanvas() {
-        image = new BufferedImage(600, 400, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = image.createGraphics();
+        bufferedImage = new BufferedImage(600, 400, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = bufferedImage.createGraphics();
         g2.setColor(Color.WHITE);
         g2.fillRect(0, 0, 600, 400);
         g2.dispose();
@@ -69,6 +95,10 @@ class DrawingPanel extends JPanel {
 
     public void setBrushColor(Color color) {
         this.brushColor = color;
+    }
+
+    public void setShapeToDraw(String shape) {
+        this.shapeToDraw = shape;
     }
 
     public Color getBrushColor() {
@@ -84,13 +114,13 @@ class DrawingPanel extends JPanel {
     }
 
     public void loadImage(BufferedImage img) {
-        image = img;
+        bufferedImage = img;
         repaint();
     }
 
     public void saveImage(String path) {
         try {
-            ImageIO.write(image, "PNG", new File(path));
+            ImageIO.write(bufferedImage, "PNG", new File(path));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,7 +131,7 @@ class DrawingPanel extends JPanel {
             undoStack.remove(0);
         }
         redoStack.clear(); // Limpiamos la pila de rehacer al guardar un nuevo estado
-        undoStack.add(copyImage(image));
+        undoStack.add(copyImage(bufferedImage));
     }
 
     public void clear() {
@@ -119,16 +149,16 @@ class DrawingPanel extends JPanel {
 
     public void undo() {
         if (!undoStack.isEmpty()) {
-            redoStack.add(copyImage(image)); // Guardamos la imagen actual en redoStack
-            image = undoStack.remove(undoStack.size() - 1); // Restauramos la última imagen guardada
+            redoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en redoStack
+            bufferedImage = undoStack.remove(undoStack.size() - 1); // Restauramos la última imagen guardada
             repaint();
         }
     }
 
     public void redo() {
         if (!redoStack.isEmpty()) {
-            undoStack.add(copyImage(image)); // Guardamos la imagen actual en undoStack
-            image = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
+            undoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en undoStack
+            bufferedImage = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
             repaint();
         }
     }
@@ -136,6 +166,59 @@ class DrawingPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, 0, 0, this);
+        g.drawImage(bufferedImage, 0, 0, this);
+    }
+
+    private BufferedImage matToBufferedImage(Mat mat) {
+        int width = mat.width();
+        int height = mat.height();
+        
+        Mat matrgb = new Mat();
+        
+        Imgproc.cvtColor(mat, matrgb, Imgproc.COLOR_BGR2RGB);
+        
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        byte[] data = new byte[width * height * (int) mat.elemSize()];
+        matrgb.get(0, 0, data);
+        image.getRaster().setDataElements(0, 0, width, height, data);
+        return image;
+    }
+
+    private void drawShape(int x, int y) {
+        if (image == null) {
+            image = new Mat(getHeight(), getWidth(), CvType.CV_8UC3, new Scalar(255, 255, 255));
+        }
+        switch (shapeToDraw) {
+            case "CIRCLE":
+                Imgproc.circle(image, new org.opencv.core.Point(x, y), 25, new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), -1);
+                break;
+            case "RECTANGLE":
+                Imgproc.rectangle(image, new org.opencv.core.Point(x - 25, y - 25), new org.opencv.core.Point(x + 25, y + 25), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()), -1);
+                break;
+            case "ARROW":
+                drawArrow(x, y);
+                break;
+        }
+        bufferedImage = matToBufferedImage(image);
+        repaint();
+    }
+
+    private void drawArrow(int x, int y) {
+        int arrowWidth = 30;
+        int arrowHeight = 20;
+        int arrowBackWidth = 60;
+        int arrowBackHeight = 3;
+
+        org.opencv.core.Point[] points = new org.opencv.core.Point[7];
+        points[0] = new org.opencv.core.Point(x, y);
+        points[1] = new org.opencv.core.Point(x - arrowWidth, y - arrowHeight);
+        points[2] = new org.opencv.core.Point(x - arrowWidth , y - arrowHeight / arrowBackHeight);
+        points[3] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth) , y - arrowHeight / arrowBackHeight);
+        points[4] = new org.opencv.core.Point(x - (arrowWidth + arrowBackWidth) , y + arrowHeight / arrowBackHeight);
+        points[5] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight / arrowBackHeight);
+        points[6] = new org.opencv.core.Point(x - arrowWidth , y + arrowHeight);
+
+        MatOfPoint matOfPoint = new MatOfPoint(points);
+        Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), new Scalar(brushColor.getRed(), brushColor.getGreen(), brushColor.getBlue()));
     }
 }
