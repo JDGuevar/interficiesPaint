@@ -38,8 +38,6 @@ class DrawingPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null) {
-                    saveToUndoStack();
-
                     Graphics2D g2 = image.createGraphics();
                     g2.setColor(brushColor);
                     g2.setStroke(new BasicStroke(brushWidth));
@@ -50,6 +48,15 @@ class DrawingPanel extends JPanel {
                 }
             }
         });
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                saveToUndoStack();
+                lastPoint = e.getPoint();
+            }
+
+        });
+
     }
 
     private void createEmptyCanvas() {
