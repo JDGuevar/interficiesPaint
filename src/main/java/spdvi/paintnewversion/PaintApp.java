@@ -1,12 +1,24 @@
 // src/main/java/spdvi/paintnewversion/PaintApp.java
 package spdvi.paintnewversion;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 
 public class PaintApp extends JFrame {
 
@@ -137,7 +149,7 @@ public class PaintApp extends JFrame {
             if (file.exists() && file.canRead()) {
                 try {
                     BufferedImage img = ImageIO.read(file);
-                    drawingPanel.loadImage(img);
+                    drawingPanel.loadImage(file.getAbsolutePath());
                     System.out.println("Imagen cargada correctamente.");
                 } catch (IOException e) {
                     e.printStackTrace();
