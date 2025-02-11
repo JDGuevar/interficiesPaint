@@ -23,3 +23,5 @@
 hs_err_pid*
 replay_pid*
 *.lst
+/lib/Tess4J/dist/
+/lib/Tess4J/nbproject/private/

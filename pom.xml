@@ -11,12 +11,16 @@
         <exec.mainClass>com.mycompany.dibuixets.Dibuixets</exec.mainClass>
     </properties>
     <dependencies>
-        
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>opencv</artifactId>
             <version>4.9.0-1.5.10</version>
             <type>jar</type>
+        </dependency>
+          <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.14.0</version>
         </dependency>
     </dependencies>
 </project>

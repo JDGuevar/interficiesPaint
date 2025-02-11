@@ -51,6 +51,7 @@ public class PaintApp extends JFrame {
         gomaButton.addActionListener(e -> activaGoma());
         buttonPanel.add(gomaButton);
 
+        
         //Boton para borrar todo
         JButton clearButton = new JButton("Borrar");
         clearButton.addActionListener(e -> drawingPanel.clear());
