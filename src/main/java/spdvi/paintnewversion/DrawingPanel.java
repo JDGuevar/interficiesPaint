@@ -59,21 +59,20 @@ public class DrawingPanel extends JPanel {
                     if (!shapeToDraw.equals("NONE")) {
                     
                     drawShape(adjustedPoint.x, adjustedPoint.y);
-                }else{
-                    if (e.getButton() == MouseEvent.BUTTON1) {// Left click
-                        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
-                        Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                        new org.opencv.core.Point(adjustedPoint.x, adjustedPoint.y), color, brushWidth);
-                    } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
-                        erase(adjustedPoint.x, adjustedPoint.y);
+                    }else{
+                        if (e.getButton() == MouseEvent.BUTTON1) {// Left click
+                            Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
+                            Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+                            new org.opencv.core.Point(adjustedPoint.x, adjustedPoint.y), color, brushWidth);
+                        } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                            erase(adjustedPoint.x, adjustedPoint.y);
+                        }
                     }
-
+                
                 }
                 bufferedImage = matToBufferedImage(image);
                 repaint();
-                }
                 
-
             }
         });
 
@@ -238,11 +237,7 @@ public class DrawingPanel extends JPanel {
     }
 
     private BufferedImage getBufferedImage() {
-        // Método para obtener la imagen actual del panel
-        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
-        paint(g2d);
-        g2d.dispose();
+        BufferedImage image = this.image != null ? matToBufferedImage(this.image) : bufferedImage;
         return image;
     }
     

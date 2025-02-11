@@ -196,7 +196,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void activaCuentaGotas() {
-        //getCurrentDrawingPanel().activateEyedropper();
+        getCurrentDrawingPanel().setCuentagotasMode(true);
     }
 
     public static void main(String[] args) {
