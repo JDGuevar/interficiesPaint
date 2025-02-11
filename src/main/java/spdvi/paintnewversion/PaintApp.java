@@ -130,7 +130,6 @@ public class PaintApp extends JFrame {
     // GOMA
     private void activaGoma() {
         drawingPanel.setBrushColor(Color.white);
-        drawingPanel.setBrushWidth(5);
     }
 
     // Método para cambiar el color del pincel

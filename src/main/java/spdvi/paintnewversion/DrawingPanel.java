@@ -1,6 +1,5 @@
 package spdvi.paintnewversion;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,29 +11,15 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
+
 import javax.swing.JPanel;
 
 import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.core.CvType;
-
-import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Mat;
-import org.opencv.core.CvType;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
 
 class DrawingPanel extends JPanel {
@@ -56,33 +41,41 @@ class DrawingPanel extends JPanel {
         createEmptyCanvas();
 
         addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent e) {
+                saveToUndoStack();
                 lastPoint = e.getPoint();
-                if(!shapeToDraw.equals("NONE")) {
-                    drawShape(e.getX(), e.getY());
+                if (e.getButton() == MouseEvent.BUTTON1) { // Left click
+                    if (!shapeToDraw.equals("NONE")) {
+                        drawShape(e.getX(), e.getY());
+                    }else{
+                        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
+                        Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+                                new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                    erase(e.getX(), e.getY());
                 }
+                bufferedImage = matToBufferedImage(image);
+                repaint();
             }
         });
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null && shapeToDraw.equals("NONE")) {
-                    Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
-                    Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                            new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                    if (e.getModifiersEx() == MouseEvent.BUTTON1_DOWN_MASK) { // Left button drag
+                        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
+                        Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+                                new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                    } else if (e.getModifiersEx() == MouseEvent.BUTTON3_DOWN_MASK) { // Right button drag
+                        erase(e.getX(), e.getY());
+                    }
                     lastPoint = e.getPoint();
                     bufferedImage = matToBufferedImage(image);
                     repaint();
                 }
             }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                saveToUndoStack();
-                lastPoint = e.getPoint();
-            }
-
         });
 
     }
@@ -241,5 +234,13 @@ class DrawingPanel extends JPanel {
         MatOfPoint matOfPoint = new MatOfPoint(points);
         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
         Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), color);
+    }
+
+    private void erase(int x, int y) {
+        Scalar white = new Scalar(255, 255, 255); // White color
+        Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+            new org.opencv.core.Point(x, y), white, brushWidth);
+        bufferedImage = matToBufferedImage(image);
+        repaint();
     }
 }
