@@ -38,6 +38,7 @@ public class MainFrame extends javax.swing.JFrame {
         cuentaGotasButton = new JButton();
         deshacerButton = new JButton();
         rehacerButton = new JButton();
+        webcamButton = new JButton("Capturar Webcam");
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -99,6 +100,8 @@ public class MainFrame extends javax.swing.JFrame {
         rehacerButton.setText("Rehacer");
         rehacerButton.addActionListener(e -> getCurrentDrawingPanel().redo());
 
+        webcamButton.addActionListener(e -> captureImage());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.add(colorButton);
@@ -106,6 +109,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonPanel.add(cuentaGotasButton);
         buttonPanel.add(deshacerButton);
         buttonPanel.add(rehacerButton);
+        buttonPanel.add(webcamButton);  
 
         getContentPane().add(buttonPanel, BorderLayout.WEST);
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -168,6 +172,17 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    private void captureImage() {
+        SwingUtilities.invokeLater(() -> {
+            WebcamCaptureDialog captureDialog = new WebcamCaptureDialog(this, getCurrentDrawingPanel());
+            captureDialog.setVisible(true);
+            BufferedImage capturedImage = captureDialog.getCapturedImage();
+            if (capturedImage != null) {
+                getCurrentDrawingPanel().loadImage(capturedImage);
+            }
+        });
+    }
+
     private void activaGoma() {
         getCurrentDrawingPanel().setBrushColor(Color.white);
         getCurrentDrawingPanel().setBrushWidth(5);
@@ -195,7 +210,6 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
     private JMenu archivoMenu;
     private JMenu borrarButton;
     private JMenuItem cargarImagenButton;
@@ -210,5 +224,5 @@ public class MainFrame extends javax.swing.JFrame {
     private JMenu pincelMenu;
     private JMenuItem nuevoDibujoButton;
     private JButton rehacerButton;
-    // End of variables declaration//GEN-END:variables
+    private JButton webcamButton;
 }

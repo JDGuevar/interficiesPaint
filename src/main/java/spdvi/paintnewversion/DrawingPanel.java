@@ -1,6 +1,5 @@
 package spdvi.paintnewversion;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,18 +10,16 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.CvType;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 public class DrawingPanel extends JPanel {
 
@@ -34,6 +31,10 @@ public class DrawingPanel extends JPanel {
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
     private String shapeToDraw = "NONE";
+    private double zoomFactor = 1.0;
+    private double zoomIncrement = 0.1;
+    private int zoomCenterX = 0;
+    private int zoomCenterY = 0;
 
     public DrawingPanel() {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
@@ -44,9 +45,10 @@ public class DrawingPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 saveToUndoStack();
-                lastPoint = e.getPoint();
+                lastPoint = adjustPointForZoom(e.getPoint());
                 if (!shapeToDraw.equals("NONE")) {
-                    drawShape(e.getX(), e.getY());
+                    Point adjustedPoint = adjustPointForZoom(e.getPoint());
+                    drawShape(adjustedPoint.x, adjustedPoint.y);
                 }
             }
         });
@@ -54,15 +56,34 @@ public class DrawingPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (lastPoint != null && shapeToDraw.equals("NONE")) {
+                    Point adjustedPoint = adjustPointForZoom(e.getPoint());
                     Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
                     Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                            new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
-                    lastPoint = e.getPoint();
+                            new org.opencv.core.Point(adjustedPoint.x, adjustedPoint.y), color, brushWidth);
+                    lastPoint = adjustedPoint;
                     bufferedImage = matToBufferedImage(image);
                     repaint();
                 }
             }
         });
+
+        addMouseWheelListener(listener -> {
+            int notches = listener.getWheelRotation();
+            if (notches < 0) {
+                zoomFactor += zoomIncrement;
+            } else {
+                zoomFactor = Math.max(zoomFactor - zoomIncrement, 0.1);
+            }
+            this.setSize((int) (bufferedImage.getWidth() * zoomFactor), (int) (bufferedImage.getHeight() * zoomFactor));
+            repaint();
+            revalidate();
+        });
+    }
+
+    private Point adjustPointForZoom(Point point) {
+        int adjustedX = (int) ((point.x - zoomCenterX) / zoomFactor);
+        int adjustedY = (int) ((point.y - zoomCenterY) / zoomFactor);
+        return new Point(adjustedX, adjustedY);
     }
 
     private void createEmptyCanvas() {
@@ -164,7 +185,16 @@ public class DrawingPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(bufferedImage, 0, 0, this);
+        Graphics2D g2 = (Graphics2D) g.create(); // Creamos una copia para evitar modificar el original
+
+        // Aplicamos la transformación para el zoom
+        g2.translate(zoomCenterX, zoomCenterY);
+        g2.scale(zoomFactor, zoomFactor);
+
+        // Dibujamos la imagen
+        g2.drawImage(bufferedImage, 0, 0, this);
+
+        g2.dispose(); // Liberamos los recursos de g2
     }
 
     private BufferedImage matToBufferedImage(Mat mat) {
