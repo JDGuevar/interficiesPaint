@@ -291,6 +291,9 @@ public class DrawingPanel extends JPanel {
             case "ARROW":
                 drawArrow(x, y);
                 break;
+            case "STAR":
+                drawStar(x, y);
+                break;
         }
         bufferedImage = matToBufferedImage(image);
         repaint();
@@ -315,6 +318,31 @@ public class DrawingPanel extends JPanel {
         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
         Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), color);
     }
+
+    private void drawStar(int x, int y){
+        int outerRadius = 30; // Radio exterior de la estrella
+        int innerRadius = 15; // Radio interior de la estrella
+        int numPoints = 5; // Número de puntas de la estrella
+
+        org.opencv.core.Point[] points = new org.opencv.core.Point[numPoints * 2];
+        double angle = Math.PI / numPoints;
+
+        for (int i = 0; i < numPoints * 2; i++) {
+            double radius = (i % 2 == 0) ? outerRadius : innerRadius;
+            double theta = i * angle - Math.PI / 2;
+            points[i] = new org.opencv.core.Point(
+                x + Math.cos(theta) * radius,
+                y + Math.sin(theta) * radius
+            );
+        }
+
+        MatOfPoint matOfPoint = new MatOfPoint(points);
+        Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
+        Imgproc.fillPoly(image, java.util.Collections.singletonList(matOfPoint), color);
+        bufferedImage = matToBufferedImage(image);
+        repaint();
+    }
+
     private void erase(int x, int y) {
         Scalar white = new Scalar(255, 255, 255); // White color
         Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),

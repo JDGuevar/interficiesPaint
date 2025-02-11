@@ -43,6 +43,13 @@ public class ShapeSelectionDialog extends JDialog {
         });
         add(arrowButton);
 
+        JButton starButton = new JButton("Dibujar Estrella");
+        starButton.addActionListener(e -> {
+            drawingPanel.setShapeToDraw("STAR");
+            dispose();
+        });
+        add(starButton);
+
         // Espaciado entre botones
         for (Component c : getContentPane().getComponents()) {
             if (c instanceof JButton) {
