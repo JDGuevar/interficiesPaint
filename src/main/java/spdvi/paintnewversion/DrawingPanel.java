@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-
-
 class DrawingPanel extends JPanel {
 
     private BufferedImage image;
@@ -154,6 +152,11 @@ class DrawingPanel extends JPanel {
         Graphics2D g2d = image.createGraphics();
         paint(g2d);
         g2d.dispose();
+        return image;
+    }
+
+    // Método para obtener la imagen cargada
+    public BufferedImage getLoadedImage() {
         return image;
     }
 

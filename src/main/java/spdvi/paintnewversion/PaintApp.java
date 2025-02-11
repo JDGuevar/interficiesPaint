@@ -1,11 +1,15 @@
 // src/main/java/spdvi/paintnewversion/PaintApp.java
 package spdvi.paintnewversion;
 
+
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class PaintApp extends JFrame {
@@ -46,6 +50,10 @@ public class PaintApp extends JFrame {
         loadImageButton.addActionListener(e -> loadImage());
         buttonPanel.add(loadImageButton);
 
+        //boton para detectar texto
+        JButton detectTextButton = new JButton("Detectar Texto");
+        detectTextButton.addActionListener(e -> detectTextFromImage());
+        buttonPanel.add(detectTextButton);
         // Goma
         JButton gomaButton = new JButton("Goma");
         gomaButton.addActionListener(e -> activaGoma());
@@ -117,6 +125,52 @@ public class PaintApp extends JFrame {
     private void activaGoma() {
         drawingPanel.setBrushColor(Color.white);
         drawingPanel.setBrushWidth(5);
+    }
+
+    private void detectTextFromImage() {
+        BufferedImage image = drawingPanel.getLoadedImage(); // Método para obtener la imagen cargada en el panel
+        if (image != null) {
+            String extractedText = extractTextFromImage(image);
+            if (extractedText != null && !extractedText.isEmpty()) {
+                int option = JOptionPane.showConfirmDialog(this, "Texto detectado:\n" + extractedText + "\n\n¿Deseas guardar este texto en un archivo .txt?", "Guardar Texto", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    saveTextToFile(extractedText);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No se detectó texto en la imagen.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay ninguna imagen cargada.");
+        }
+    }
+
+    private String extractTextFromImage(BufferedImage image) {
+        Tesseract tesseract = new Tesseract();
+        tesseract.setDatapath("tessdata"); // Ruta a los datos de Tesseract
+        tesseract.setLanguage("spa"); // Configurar el idioma a español = "spa", ingles ="eng"
+        try {
+            return tesseract.doOCR(image);
+        } catch (TesseractException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveTextToFile(String text) {
+        if (text != null && !text.isEmpty()) {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try (FileWriter writer = new FileWriter(file.getAbsolutePath() + ".txt")) {
+                    writer.write(text);
+                    JOptionPane.showMessageDialog(this, "Texto guardado correctamente.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No se detectó texto.");
+        }
     }
 
     // Método para cambiar el color del pincel
