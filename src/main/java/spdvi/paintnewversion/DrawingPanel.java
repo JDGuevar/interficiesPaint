@@ -45,18 +45,18 @@ public class DrawingPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 saveToUndoStack();
-
                 lastPoint = adjustPointForZoom(e.getPoint());
+                Point adjustedPoint = adjustPointForZoom(e.getPoint());
                 if (!shapeToDraw.equals("NONE")) {
-                    Point adjustedPoint = adjustPointForZoom(e.getPoint());
+                    
                     drawShape(adjustedPoint.x, adjustedPoint.y);
                 }else{
                     if (e.getButton() == MouseEvent.BUTTON1) {// Left click
                         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
                         Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                        new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                        new org.opencv.core.Point(adjustedPoint.x, adjustedPoint.y), color, brushWidth);
                     } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
-                        erase(e.getX(), e.getY());
+                        erase(adjustedPoint.x, adjustedPoint.y);
                     }
 
                 }
@@ -73,12 +73,12 @@ public class DrawingPanel extends JPanel {
                     
                     if (e.getModifiersEx() == MouseEvent.BUTTON1_DOWN_MASK) { // Left button drag
                         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
-                        Imgproc.line(image, new org.opencv.core.Point(adjustedPoint.x, adjustedPoint.y),
-                                new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                        Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
+                                new org.opencv.core.Point(adjustedPoint.x,adjustedPoint.y), color, brushWidth);
                     } else if (e.getModifiersEx() == MouseEvent.BUTTON3_DOWN_MASK) { // Right button drag
-                        erase(e.getX(), e.getY());
+                        erase(adjustedPoint.x, adjustedPoint.y);
                     }
-                    lastPoint = e.getPoint();
+                    lastPoint = adjustedPoint;
                     bufferedImage = matToBufferedImage(image);
                     repaint();
                 }
