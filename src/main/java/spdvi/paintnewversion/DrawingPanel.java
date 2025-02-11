@@ -44,16 +44,17 @@ class DrawingPanel extends JPanel {
             public void mousePressed(MouseEvent e) {
                 saveToUndoStack();
                 lastPoint = e.getPoint();
-                if (e.getButton() == MouseEvent.BUTTON1) { // Left click
-                    if (!shapeToDraw.equals("NONE")) {
-                        drawShape(e.getX(), e.getY());
-                    }else{
+                 
+                if (!shapeToDraw.equals("NONE")) {
+                    drawShape(e.getX(), e.getY());
+                }else{
+                    if (e.getButton() == MouseEvent.BUTTON1) {// Left click
                         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
                         Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-                                new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                        new org.opencv.core.Point(e.getX(), e.getY()), color, brushWidth);
+                    } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
+                        erase(e.getX(), e.getY());
                     }
-                } else if (e.getButton() == MouseEvent.BUTTON3) { // Right click
-                    erase(e.getX(), e.getY());
                 }
                 bufferedImage = matToBufferedImage(image);
                 repaint();
