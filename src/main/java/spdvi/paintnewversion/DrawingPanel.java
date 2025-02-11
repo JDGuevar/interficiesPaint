@@ -1,6 +1,8 @@
 package spdvi.paintnewversion;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -25,6 +27,7 @@ public class DrawingPanel extends JPanel {
 
     private Mat image;
     private BufferedImage bufferedImage;
+
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
     private Point lastPoint;
@@ -35,19 +38,25 @@ public class DrawingPanel extends JPanel {
     private double zoomIncrement = 0.1;
     private int zoomCenterX = 0;
     private int zoomCenterY = 0;
+    private boolean cuentagotasMode = false;
 
     public DrawingPanel() {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         createEmptyCanvas();
-
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 saveToUndoStack();
                 lastPoint = adjustPointForZoom(e.getPoint());
                 Point adjustedPoint = adjustPointForZoom(e.getPoint());
-                if (!shapeToDraw.equals("NONE")) {
+                if (cuentagotasMode) {
+                    Color color = getColorAtPoint(adjustedPoint);
+                    setBrushColor(color);
+                    cuentagotasMode = false; // Desactivar modo cuentagotas después de seleccionar el color
+                }else{
+                    if (!shapeToDraw.equals("NONE")) {
                     
                     drawShape(adjustedPoint.x, adjustedPoint.y);
                 }else{
@@ -62,11 +71,15 @@ public class DrawingPanel extends JPanel {
                 }
                 bufferedImage = matToBufferedImage(image);
                 repaint();
+                }
+                
+
             }
         });
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
+
                 if (lastPoint != null && shapeToDraw.equals("NONE")) {
 
                     Point adjustedPoint = adjustPointForZoom(e.getPoint());
@@ -80,6 +93,7 @@ public class DrawingPanel extends JPanel {
                     }
                     lastPoint = adjustedPoint;
                     bufferedImage = matToBufferedImage(image);
+
                     repaint();
                 }
             }
@@ -109,15 +123,17 @@ public class DrawingPanel extends JPanel {
         image = new Mat(400, 600, CvType.CV_8UC3, new Scalar(255, 255, 255));
         bufferedImage = matToBufferedImage(image);
         repaint();
+
     }
 
     public void setBrushColor(Color color) {
         this.brushColor = color;
     }
-
+    
     public void setShapeToDraw(String shape) {
         this.shapeToDraw = shape;
     }
+
 
     public Color getBrushColor() {
         return brushColor;
@@ -160,6 +176,7 @@ public class DrawingPanel extends JPanel {
 
     public void saveImage(String path) {
         Imgcodecs.imwrite(path, image);
+
     }
 
     private void saveToUndoStack() {
@@ -167,7 +184,9 @@ public class DrawingPanel extends JPanel {
             undoStack.remove(0);
         }
         redoStack.clear(); // Limpiamos la pila de rehacer al guardar un nuevo estado
+
         undoStack.add(copyImage(bufferedImage));
+
     }
 
     public void clear() {
@@ -185,21 +204,52 @@ public class DrawingPanel extends JPanel {
 
     public void undo() {
         if (!undoStack.isEmpty()) {
+
             redoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en redoStack
             bufferedImage = undoStack.remove(undoStack.size() - 1); // Restauramos la última imagen guardada
             image = bufferedImageToMat(bufferedImage); // Actualizamos el Mat
+
             repaint();
         }
     }
 
     public void redo() {
         if (!redoStack.isEmpty()) {
+
             undoStack.add(copyImage(bufferedImage)); // Guardamos la imagen actual en undoStack
             bufferedImage = redoStack.remove(redoStack.size() - 1); // Restauramos la imagen desde redoStack
             image = bufferedImageToMat(bufferedImage); // Actualizamos el Mat
+
             repaint();
         }
     }
+
+    public void setCuentagotasMode(boolean mode) {
+        this.cuentagotasMode = mode;
+    }
+
+    private Color getColorAtPoint(Point point) {
+        BufferedImage image = getBufferedImage();
+        if (image != null) {
+            int rgb = image.getRGB(point.x, point.y);
+            return new Color(rgb);
+        }
+        return Color.BLACK; // Color por defecto si no hay imagen
+    }
+
+    private BufferedImage getBufferedImage() {
+        // Método para obtener la imagen actual del panel
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+        paint(g2d);
+        g2d.dispose();
+        return image;
+    }
+    
+    public BufferedImage getLoadedImage() {
+        return bufferedImage;
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -278,4 +328,3 @@ public class DrawingPanel extends JPanel {
         repaint();
     }
 }
-

@@ -19,6 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
+import javax.swing.*;
+import java.awt.*;
+import java.io.FileWriter;
 
 public class PaintApp extends JFrame {
 
@@ -43,10 +48,17 @@ public class PaintApp extends JFrame {
         colorButton.addActionListener(e -> changeColor());
         buttonPanel.add(colorButton);
 
+
+        //Botón para la función cuentagotas
+        JButton cuentagotasButton = new JButton("Cuentagotas");
+        cuentagotasButton.addActionListener(e -> activaCuentagotas());
+        buttonPanel.add(cuentagotasButton);
+
         // Botón para cambiar de grosor
         JButton grosorButton = new JButton("Grosor");
         grosorButton.addActionListener(e -> cambiarGrosor());
         buttonPanel.add(grosorButton);
+
 
         // Botón para abrir el diálogo de selección de formas
         JButton shapesButton = new JButton("Formas");
@@ -56,15 +68,23 @@ public class PaintApp extends JFrame {
         });
         buttonPanel.add(shapesButton);
 
+
         // Botón para cargar imagen
         JButton loadImageButton = new JButton("Cargar Imagen");
         loadImageButton.addActionListener(e -> loadImage());
         buttonPanel.add(loadImageButton);
 
+
+        //boton para detectar texto
+        JButton detectTextButton = new JButton("Detectar Texto");
+        detectTextButton.addActionListener(e -> detectTextFromImage());
+        buttonPanel.add(detectTextButton);
+
         // Goma
         JButton gomaButton = new JButton("Goma");
         gomaButton.addActionListener(e -> activaGoma());
         buttonPanel.add(gomaButton);
+
 
         //Boton para borrar todo
         JButton clearButton = new JButton("Borrar");
@@ -130,6 +150,54 @@ public class PaintApp extends JFrame {
     // GOMA
     private void activaGoma() {
         drawingPanel.setBrushColor(Color.white);
+
+        drawingPanel.setBrushWidth(5);
+    }
+
+    private void detectTextFromImage() {
+        BufferedImage image = drawingPanel.getLoadedImage(); // Método para obtener la imagen cargada en el panel
+        if (image != null) {
+            String extractedText = extractTextFromImage(image);
+            if (extractedText != null && !extractedText.isEmpty()) {
+                int option = JOptionPane.showConfirmDialog(this, "Texto detectado:\n" + extractedText + "\n\n¿Deseas guardar este texto en un archivo .txt?", "Guardar Texto", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    saveTextToFile(extractedText);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No se detectó texto en la imagen.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay ninguna imagen cargada.");
+        }
+    }
+
+    private String extractTextFromImage(BufferedImage image) {
+        Tesseract tesseract = new Tesseract();
+        tesseract.setDatapath("tessdata"); // Ruta a los datos de Tesseract
+        tesseract.setLanguage("spa"); // Configurar el idioma a español = "spa", ingles ="eng"
+        try {
+            return tesseract.doOCR(image);
+        } catch (TesseractException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveTextToFile(String text) {
+        if (text != null && !text.isEmpty()) {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try (FileWriter writer = new FileWriter(file.getAbsolutePath() + ".txt")) {
+                    writer.write(text);
+                    JOptionPane.showMessageDialog(this, "Texto guardado correctamente.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No se detectó texto.");
+        }
     }
 
     // Método para cambiar el color del pincel
@@ -138,6 +206,11 @@ public class PaintApp extends JFrame {
         if (newColor != null) {
             drawingPanel.setBrushColor(newColor);
         }
+    }
+
+
+    private void activaCuentagotas() {
+        drawingPanel.setCuentagotasMode(true);
     }
 
     private void loadImage() {
@@ -160,7 +233,6 @@ public class PaintApp extends JFrame {
             System.out.println("No se seleccionó ningún archivo.");
         }
     }
-
     // Método para guardar la imagen
     private void saveImage() {
         JFileChooser fileChooser = new JFileChooser();
