@@ -33,7 +33,7 @@ public class DrawingPanel extends JPanel {
 
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
-    private double figureSize = brushWidth/10;
+    private double figureSize = (double)brushWidth/10;
     private Point lastPoint;
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
@@ -183,7 +183,7 @@ public class DrawingPanel extends JPanel {
      */
     public void setBrushWidth(int brushWidth) {
         this.brushWidth = brushWidth;
-        this.figureSize = brushWidth/10;
+        this.figureSize = (double)brushWidth/10;
     }
 
     /**
