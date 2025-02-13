@@ -1,6 +1,7 @@
 package spdvi.paintnewversion;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -42,11 +43,16 @@ public class DrawingPanel extends JPanel {
     private int zoomCenterX = 0;
     private int zoomCenterY = 0;
     private boolean cuentagotasMode = false;
+    private int width;
+    private int height;
 
     /**
      * Constructor del panel de dibujo.
      */
-    public DrawingPanel() {
+    public DrawingPanel(int width, int height) {
+        this.width = width;
+        this.height = height;
+        setPreferredSize(new Dimension(width, height));
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());
         createEmptyCanvas();
@@ -105,9 +111,9 @@ public class DrawingPanel extends JPanel {
             } else {
                 zoomFactor = Math.max(zoomFactor - zoomIncrement, 0.1);
             }
-            this.setSize((int) (bufferedImage.getWidth() * zoomFactor), (int) (bufferedImage.getHeight() * zoomFactor));
-            repaint();
+            setPreferredSize(new Dimension((int) (bufferedImage.getWidth() * zoomFactor), (int) (bufferedImage.getHeight() * zoomFactor)));
             revalidate();
+            repaint();
         });
     }
 
@@ -127,8 +133,10 @@ public class DrawingPanel extends JPanel {
      * Crea un lienzo vacío.
      */
     private void createEmptyCanvas() {
-        image = new Mat(400, 600, CvType.CV_8UC3, new Scalar(255, 255, 255));
+        image = new Mat(this.height, this.width, CvType.CV_8UC3, new Scalar(255, 255, 255));
         bufferedImage = matToBufferedImage(image);
+        setPreferredSize(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
+        revalidate();
         repaint();
     }
 
