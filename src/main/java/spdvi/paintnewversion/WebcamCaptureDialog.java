@@ -14,6 +14,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**
+ * Clase WebcamCaptureDialog que permite capturar imágenes desde una webcam utilizando OpenCV.
+ * Además, detecta caras en la imagen capturada y dibuja rectángulos alrededor de ellas.
+ */
 public class WebcamCaptureDialog extends JDialog {
     private DrawingPanel drawingPanel;
     private VideoCapture capture;
@@ -23,6 +27,12 @@ public class WebcamCaptureDialog extends JDialog {
     private JLabel imageLabel;
     private CascadeClassifier faceCascade;
 
+    /**
+     * Constructor de la clase WebcamCaptureDialog.
+     *
+     * @param parent        Ventana padre del diálogo.
+     * @param drawingPanel  Panel de dibujo donde se insertará la imagen capturada.
+     */
     public WebcamCaptureDialog(JFrame parent, DrawingPanel drawingPanel) {
         super(parent, "Captura de Webcam", true);
         this.drawingPanel = drawingPanel;
@@ -49,6 +59,9 @@ public class WebcamCaptureDialog extends JDialog {
         startCapturing();
     }
 
+    /**
+     * Inicia la captura de video desde la webcam.
+     */
     private void startCapturing() {
         capture = new VideoCapture(0);
         frame = new Mat();
@@ -72,6 +85,9 @@ public class WebcamCaptureDialog extends JDialog {
         }).start();
     }
 
+    /**
+     * Detiene la captura de video y libera los recursos.
+     */
     private void stopCapturing() {
         capturing = false;
         if (capture != null) {
@@ -79,6 +95,9 @@ public class WebcamCaptureDialog extends JDialog {
         }
     }
 
+    /**
+     * Captura la imagen actual de la webcam y la almacena en una variable.
+     */
     private void captureImage() {
         if (!frame.empty()) {
             capturedImage = matToBufferedImage(frame);
@@ -87,10 +106,20 @@ public class WebcamCaptureDialog extends JDialog {
         }
     }
 
+    /**
+     * Obtiene la imagen capturada.
+     *
+     * @return La imagen capturada como un objeto BufferedImage.
+     */
     public BufferedImage getCapturedImage() {
         return capturedImage;
     }
 
+    /**
+     * Detecta caras en la imagen proporcionada y dibuja rectángulos alrededor de ellas.
+     *
+     * @param image Imagen en la que se buscarán caras.
+     */
     private void detectAndDrawFaces(Mat image) {
         MatOfRect faces = new MatOfRect();
         Mat grayFrame = new Mat();
@@ -109,6 +138,12 @@ public class WebcamCaptureDialog extends JDialog {
         }
     }
 
+    /**
+     * Convierte un objeto Mat de OpenCV a BufferedImage.
+     *
+     * @param mat Imagen en formato Mat.
+     * @return Imagen en formato BufferedImage.
+     */
     private BufferedImage matToBufferedImage(Mat mat) {
         MatOfByte matOfByte = new MatOfByte();
         Imgcodecs.imencode(".jpg", mat, matOfByte);
