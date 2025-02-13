@@ -22,7 +22,7 @@ public class ShapeSelectionDialog extends JDialog {
     public ShapeSelectionDialog(JFrame parent, DrawingPanel drawingPanel) {
         super(parent, "Seleccionar Forma", true);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        setSize(200, 200);
+        setSize(200, 300);
         setLocationRelativeTo(parent);
 
         // Botón para seleccionar el pincel
