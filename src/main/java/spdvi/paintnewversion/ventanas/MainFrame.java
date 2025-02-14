@@ -17,7 +17,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * Clase MainFrame que muestra una interaz gráfica con las diversas herramientas de una aplicación de dibujo.
+ * Clase MainFrame que muestra una interaz gráfica con las diversas herramientas
+ * de una aplicación de dibujo.
  */
 public class MainFrame extends javax.swing.JFrame {
 
@@ -149,7 +150,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonPanel.add(cuentaGotasButton);
         buttonPanel.add(deshacerButton);
         buttonPanel.add(rehacerButton);
-        buttonPanel.add(webcamButton);  
+        buttonPanel.add(webcamButton);
         buttonPanel.add(detectTextButton);
 
         getContentPane().add(buttonPanel, BorderLayout.WEST);
@@ -184,10 +185,12 @@ public class MainFrame extends javax.swing.JFrame {
         // Asegurarse de que el JScrollPane respete el tamaño preferido del DrawingPanel
         scrollPane.revalidate();
         scrollPane.repaint();
+        SwingUtilities.invokeLater(() -> drawingPanel.requestFocusInWindow());
     }
 
     /**
      * Obtiene el panel de la pestaña activa del JTabbedPane.
+     *
      * @return el panel activo de dibujo.
      */
     private DrawingPanel getCurrentDrawingPanel() {
@@ -262,7 +265,8 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Establece el color blanco y un grosor de 5 para simular una goma de borrar.
+     * Establece el color blanco y un grosor de 5 para simular una goma de
+     * borrar.
      */
     private void activaGoma() {
         getCurrentDrawingPanel().setBrushColor(Color.white);
@@ -280,14 +284,16 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Activa el modo cuenta gotas para seleccionar un color de la imagen del panel.
+     * Activa el modo cuenta gotas para seleccionar un color de la imagen del
+     * panel.
      */
     private void activaCuentaGotas() {
         getCurrentDrawingPanel().setCuentagotasMode(true);
     }
 
     /**
-     * Detecta el texto en la imagen actual del panel y permite guardarlo en un .txt
+     * Detecta el texto en la imagen actual del panel y permite guardarlo en un
+     * .txt
      */
     private void detectTextFromImage() {
         BufferedImage image = getCurrentDrawingPanel().getLoadedImage(); // Método para obtener la imagen cargada en el panel
@@ -308,6 +314,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     /**
      * Extrae el texto usando Tesseract OCR
+     *
      * @param image Imagen actual de la cual extraer el texto
      * @return Texto extraído de la imagen
      */
@@ -325,6 +332,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     /**
      * Guarda el texto en un archivo nuevo .txt
+     *
      * @param text Texto a guardar
      */
     private void saveTextToFile(String text) {
@@ -346,6 +354,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     /**
      * Redimensiona un icono para ajustarlo al tamaño específico
+     *
      * @param icon Icono original
      * @param width Ancho deseado
      * @param height Alto deseado
@@ -353,12 +362,13 @@ public class MainFrame extends javax.swing.JFrame {
      */
     private Icon resizeIcon(ImageIcon icon, int width, int height) {
         Image img = icon.getImage();
-        Image resizedImage = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH);
+        Image resizedImage = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImage);
     }
 
     /**
      * Método principal que inicia la aplicación
+     *
      * @param args argumentos de la linea de comandos
      */
     public static void main(String[] args) {

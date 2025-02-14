@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -12,8 +13,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -24,7 +30,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * Panel de dibujo que permite dibujar diferentes formas y realizar operaciones de edición.
+ * Panel de dibujo que permite dibujar diferentes formas y realizar operaciones
+ * de edición.
  */
 public class DrawingPanel extends JPanel {
 
@@ -33,7 +40,7 @@ public class DrawingPanel extends JPanel {
 
     private Color brushColor = Color.BLACK;
     private int brushWidth = 1;
-    private double figureSize = (double)brushWidth/10;
+    private double figureSize = (double) brushWidth / 10;
     private Point lastPoint;
     private ArrayList<BufferedImage> undoStack = new ArrayList<>();
     private ArrayList<BufferedImage> redoStack = new ArrayList<>();
@@ -115,6 +122,29 @@ public class DrawingPanel extends JPanel {
             revalidate();
             repaint();
         });
+
+        InputMap inputMap = this.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap actionMap = this.getActionMap();
+
+        KeyStroke undoKeyStroke = KeyStroke.getKeyStroke("control Z");
+        inputMap.put(undoKeyStroke, "miAccionDeshacer");
+
+        actionMap.put("miAccionDeshacer", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                undo(); // Llama a tu método aquí
+            }
+        });
+
+        KeyStroke redoKeyStroke = KeyStroke.getKeyStroke("control Y");
+        inputMap.put(redoKeyStroke, "miAccionRehacer");
+
+        actionMap.put("miAccionRehacer", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                redo();
+            }
+        });
     }
 
     /**
@@ -183,7 +213,7 @@ public class DrawingPanel extends JPanel {
      */
     public void setBrushWidth(int brushWidth) {
         this.brushWidth = brushWidth;
-        this.figureSize = (double)brushWidth/10;
+        this.figureSize = (double) brushWidth / 10;
     }
 
     /**
@@ -388,10 +418,10 @@ public class DrawingPanel extends JPanel {
         Scalar color = new Scalar(brushColor.getBlue(), brushColor.getGreen(), brushColor.getRed()); // BGR order
         switch (shapeToDraw) {
             case "CIRCLE":
-                Imgproc.circle(image, new org.opencv.core.Point(x, y), 5*brushWidth, color, -1);
+                Imgproc.circle(image, new org.opencv.core.Point(x, y), 5 * brushWidth, color, -1);
                 break;
             case "RECTANGLE":
-                Imgproc.rectangle(image, new org.opencv.core.Point(x - 25*figureSize, y - 25*figureSize), new org.opencv.core.Point(x + 25, y + 25), color, -1);
+                Imgproc.rectangle(image, new org.opencv.core.Point(x - 25 * figureSize, y - 25 * figureSize), new org.opencv.core.Point(x + 25, y + 25), color, -1);
                 break;
             case "ARROW":
                 drawArrow(x, y);
@@ -418,9 +448,9 @@ public class DrawingPanel extends JPanel {
      * @param y La coordenada y donde se dibujará la flecha.
      */
     private void drawArrow(int x, int y) {
-        int arrowWidth = 10*brushWidth/2;
-        int arrowHeight = 5*brushWidth/2;
-        int arrowBackWidth = 20*brushWidth/2;
+        int arrowWidth = 10 * brushWidth / 2;
+        int arrowHeight = 5 * brushWidth / 2;
+        int arrowBackWidth = 20 * brushWidth / 2;
         int arrowBackHeight = 3;
 
         org.opencv.core.Point[] points = new org.opencv.core.Point[7];
@@ -477,18 +507,18 @@ public class DrawingPanel extends JPanel {
         // Dibujar la cabeza
         Scalar dogColor = new Scalar(19, 69, 139); // Marrón
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y), new Size(50, 40), 0, 0, 360, dogColor, -1);
-        
+
         // Dibujar las orejas
         Imgproc.ellipse(image, new org.opencv.core.Point(x - 35, y - 20), new Size(20, 50), -120, 0, 360, dogColor, -1);
         Imgproc.ellipse(image, new org.opencv.core.Point(x + 35, y - 20), new Size(20, 50), 120, 0, 360, dogColor, -1);
-        
+
         // Dibujar el hocico
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y + 30), new Size(20, 15), 0, 0, 360, dogColor, -1);
-        
+
         // Dibujar la lengua
         Scalar tongueColor = new Scalar(0, 0, 255); // Rojo
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y + 40), new Size(15, 10), 0, 0, 180, tongueColor, -1);
-        
+
         // Dibujar los ojos
         Scalar eyeColor = new Scalar(0, 0, 0); // Negro
         Imgproc.circle(image, new org.opencv.core.Point(x - 15, y - 10), 5, eyeColor, -1);
@@ -496,7 +526,7 @@ public class DrawingPanel extends JPanel {
 
         // Dibujar la nariz
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y + 20), new Size(10, 7), 0, 0, 360, eyeColor, -1);
-                
+
         bufferedImage = matToBufferedImage(image);
         repaint();
     }
@@ -511,11 +541,11 @@ public class DrawingPanel extends JPanel {
         // Dibujar la cabeza
         Scalar catColor = new Scalar(0, 0, 0); // Negro
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y), new Size(50, 40), 0, 0, 360, catColor, -1);
-        
+
         // Dibujar las orejas puntiagudas
-        org.opencv.core.Point[] leftEar = { new org.opencv.core.Point(x - 40, y - 50), new org.opencv.core.Point(x - 60, y - 20), new org.opencv.core.Point(x - 20, y - 20) };
-        org.opencv.core.Point[] rightEar = { new org.opencv.core.Point(x + 40, y - 50), new org.opencv.core.Point(x + 60, y - 20), new org.opencv.core.Point(x + 20, y - 20) };
-        
+        org.opencv.core.Point[] leftEar = {new org.opencv.core.Point(x - 40, y - 50), new org.opencv.core.Point(x - 60, y - 20), new org.opencv.core.Point(x - 20, y - 20)};
+        org.opencv.core.Point[] rightEar = {new org.opencv.core.Point(x + 40, y - 50), new org.opencv.core.Point(x + 60, y - 20), new org.opencv.core.Point(x + 20, y - 20)};
+
         // Ángulo de rotación (en grados)
         double angle = 35;
 
@@ -535,36 +565,36 @@ public class DrawingPanel extends JPanel {
         // Dibujar las orejas rotadas
         Imgproc.fillConvexPoly(image, new MatOfPoint(leftEarRotated), catColor);
         Imgproc.fillConvexPoly(image, new MatOfPoint(rightEarRotated), catColor);
-        
+
         // Dibujar los ojos
         Scalar eyeColor = new Scalar(255, 255, 255); // Blanco
         Imgproc.circle(image, new org.opencv.core.Point(x - 15, y - 10), 5, eyeColor, -1);
         Imgproc.circle(image, new org.opencv.core.Point(x + 15, y - 10), 5, eyeColor, -1);
-        
+
         // Dibujar la nariz
         Scalar bigoteColor = new Scalar(100, 100, 100); // Gris
         Imgproc.ellipse(image, new org.opencv.core.Point(x, y + 20), new Size(6, 4), 0, 0, 360, bigoteColor, -1);
-        
+
         // Dibujar los bigotes
         for (int i = -1; i <= 1; i++) {
             Imgproc.line(image, new org.opencv.core.Point(x - 10, y + 20 + (i * 5)), new org.opencv.core.Point(x - 60, y + 20 + (i * 10)), bigoteColor, 2);
             Imgproc.line(image, new org.opencv.core.Point(x + 10, y + 20 + (i * 5)), new org.opencv.core.Point(x + 60, y + 20 + (i * 10)), bigoteColor, 2);
-        } 
+        }
         bufferedImage = matToBufferedImage(image);
         repaint();
     }
 
     /**
      * Rota un punto alrededor de otro punto de referencia.
-     * 
+     *
      * Esta función rota un punto alrededor de un centro de rotación
      * especificado, utilizando un ángulo de rotación en grados.
-     * 
+     *
      * @param point El punto a rotar.
      * @param center El centro alrededor del cual se realiza la rotación.
-     * @param angle El ángulo de rotación en grados (positivo para rotación antihoraria, negativo para 
-     *              horaria).
-     * 
+     * @param angle El ángulo de rotación en grados (positivo para rotación
+     * antihoraria, negativo para horaria).
+     *
      * @return Un nuevo objeto Point que representa el punto rotado.
      */
     private org.opencv.core.Point rotatePoint(org.opencv.core.Point point, org.opencv.core.Point center, double angle) {
@@ -580,9 +610,9 @@ public class DrawingPanel extends JPanel {
 
         return new org.opencv.core.Point(newX, newY);
     }
-    
+
     /**
-     * Borra una línea en la posición especificada. 
+     * Borra una línea en la posición especificada.
      *
      * @param x La coordenada x donde se comenzará a borrar.
      * @param y La coordenada y donde se comenzará a borrar.
@@ -590,7 +620,7 @@ public class DrawingPanel extends JPanel {
     private void erase(int x, int y) {
         Scalar white = new Scalar(255, 255, 255); // White color
         Imgproc.line(image, new org.opencv.core.Point(lastPoint.x, lastPoint.y),
-            new org.opencv.core.Point(x, y), white, brushWidth);
+                new org.opencv.core.Point(x, y), white, brushWidth);
         bufferedImage = matToBufferedImage(image);
         repaint();
     }
