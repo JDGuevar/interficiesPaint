@@ -25,6 +25,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setVisible(true);
         nuevoDibujo();
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -172,6 +173,9 @@ public class MainFrame extends javax.swing.JFrame {
         // Asegurarse de que el JScrollPane respete el tamaño preferido del DrawingPanel
         scrollPane.revalidate();
         scrollPane.repaint();
+
+        // Establecer el foco en el panel de dibujo
+        SwingUtilities.invokeLater(() -> drawingPanel.requestFocusInWindow());
     }
 
     private DrawingPanel getCurrentDrawingPanel() {

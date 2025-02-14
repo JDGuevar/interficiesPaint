@@ -115,7 +115,28 @@ public class DrawingPanel extends JPanel {
             revalidate();
             repaint();
         });
+
+        /*addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                System.out.println(e.getKeyCode());
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_W -> zoomCenterY -= 10;
+                    case KeyEvent.VK_A -> zoomCenterX -= 10;
+                    case KeyEvent.VK_S -> zoomCenterY += 10;
+                    case KeyEvent.VK_D -> zoomCenterX += 10;
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+
+            @Override
+            public void keyTyped(KeyEvent e) {}
+        });*/
     }
+
+    
 
     /**
      * Ajusta un punto según el factor de zoom actual.
