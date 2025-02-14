@@ -16,10 +16,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Clase MainFrame que muestra una interaz gráfica con las diversas herramientas de una aplicación de dibujo.
+ */
 public class MainFrame extends javax.swing.JFrame {
 
     private JTabbedPane tabbedPane;
 
+    /**
+     * Constructor de la ventana principal de la aplicación.
+     */
     public MainFrame() {
         initComponents();
         this.setExtendedState(MAXIMIZED_BOTH);
@@ -27,6 +33,9 @@ public class MainFrame extends javax.swing.JFrame {
         nuevoDibujo();
     }
 
+    /**
+     * Inicializa los componentes de la interfaz.
+     */
     @SuppressWarnings("unchecked")
     private void initComponents() {
 
@@ -148,6 +157,9 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }
 
+    /**
+     * Crea un nuevo panel de dibujo según unas dimensiones elegidas.
+     */
     private void nuevoDibujo() {
         // Solicitar el tamaño del dibujo al usuario
         String widthStr = JOptionPane.showInputDialog(this, "Ingrese el ancho del dibujo:", "Nuevo Dibujo", JOptionPane.PLAIN_MESSAGE);
@@ -174,11 +186,18 @@ public class MainFrame extends javax.swing.JFrame {
         scrollPane.repaint();
     }
 
+    /**
+     * Obtiene el panel de la pestaña activa del JTabbedPane.
+     * @return el panel activo de dibujo.
+     */
     private DrawingPanel getCurrentDrawingPanel() {
         JScrollPane scrollPane = (JScrollPane) tabbedPane.getSelectedComponent();
         return (DrawingPanel) scrollPane.getViewport().getView();
     }
 
+    /**
+     * Carga una imagen desde un archivo y lo muestra.
+     */
     private void loadImage() {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -197,6 +216,9 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Guarda la imagen actual del panel en un archivo.
+     */
     private void saveImage() {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -206,6 +228,9 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Cambia el grosor del pincel
+     */
     private void cambiarGrosor() {
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 20, 3);
         slider.setMajorTickSpacing(5);
@@ -222,6 +247,9 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Abre el dialogo de la webcam y captura la imagen de la "foto".
+     */
     private void captureImage() {
         SwingUtilities.invokeLater(() -> {
             WebcamCaptureDialog captureDialog = new WebcamCaptureDialog(this, getCurrentDrawingPanel());
@@ -233,11 +261,17 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Establece el color blanco y un grosor de 5 para simular una goma de borrar.
+     */
     private void activaGoma() {
         getCurrentDrawingPanel().setBrushColor(Color.white);
         getCurrentDrawingPanel().setBrushWidth(5);
     }
 
+    /**
+     * Permite al usuario seleccionar un color para el pincel.
+     */
     private void changeColor() {
         Color newColor = JColorChooser.showDialog(this, "Selecciona un color", getCurrentDrawingPanel().getBrushColor());
         if (newColor != null) {
@@ -245,10 +279,16 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Activa el modo cuenta gotas para seleccionar un color de la imagen del panel.
+     */
     private void activaCuentaGotas() {
         getCurrentDrawingPanel().setCuentagotasMode(true);
     }
 
+    /**
+     * Detecta el texto en la imagen actual del panel y permite guardarlo en un .txt
+     */
     private void detectTextFromImage() {
         BufferedImage image = getCurrentDrawingPanel().getLoadedImage(); // Método para obtener la imagen cargada en el panel
         if (image != null) {
@@ -266,6 +306,11 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Extrae el texto usando Tesseract OCR
+     * @param image Imagen actual de la cual extraer el texto
+     * @return Texto extraído de la imagen
+     */
     private String extractTextFromImage(BufferedImage image) {
         Tesseract tesseract = new Tesseract();
         tesseract.setDatapath("tessdata"); // Ruta a los datos de Tesseract
@@ -278,6 +323,10 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Guarda el texto en un archivo nuevo .txt
+     * @param text Texto a guardar
+     */
     private void saveTextToFile(String text) {
         if (text != null && !text.isEmpty()) {
             JFileChooser fileChooser = new JFileChooser();
@@ -295,12 +344,23 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Redimensiona un icono para ajustarlo al tamaño específico
+     * @param icon Icono original
+     * @param width Ancho deseado
+     * @param height Alto deseado
+     * @return Icono redimensionado
+     */
     private Icon resizeIcon(ImageIcon icon, int width, int height) {
         Image img = icon.getImage();
         Image resizedImage = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImage);
     }
 
+    /**
+     * Método principal que inicia la aplicación
+     * @param args argumentos de la linea de comandos
+     */
     public static void main(String[] args) {
         File dll = new File("src\\main\\java\\spdvi\\paintnewversion\\funciones\\opencv_java490.dll");
         System.load(dll.getAbsolutePath());

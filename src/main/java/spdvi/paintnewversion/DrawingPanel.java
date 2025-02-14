@@ -253,6 +253,7 @@ public class DrawingPanel extends JPanel {
      * Limpia el lienzo.
      */
     public void clear() {
+        saveToUndoStack();
         createEmptyCanvas();
         repaint();
     }
