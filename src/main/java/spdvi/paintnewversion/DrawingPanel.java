@@ -556,17 +556,15 @@ public class DrawingPanel extends JPanel {
     /**
      * Rota un punto alrededor de otro punto de referencia.
      * 
-     * Esta función rota un punto dado en el espacio 2D alrededor de un centro de rotación
-     * especificado, utilizando un ángulo de rotación en grados. La rotación se realiza en el sentido
-     * antihorario, siguiendo la convención matemática estándar.
+     * Esta función rota un punto alrededor de un centro de rotación
+     * especificado, utilizando un ángulo de rotación en grados.
      * 
-     * @param point El punto a rotar, representado como un objeto {@link org.opencv.core.Point}.
-     * @param center El centro alrededor del cual se realiza la rotación, también representado como un 
-     *               objeto {@link org.opencv.core.Point}.
+     * @param point El punto a rotar.
+     * @param center El centro alrededor del cual se realiza la rotación.
      * @param angle El ángulo de rotación en grados (positivo para rotación antihoraria, negativo para 
-     *              rotación en el sentido de las agujas del reloj).
+     *              horaria).
      * 
-     * @return Un nuevo objeto {@link org.opencv.core.Point} que representa el punto rotado.
+     * @return Un nuevo objeto Point que representa el punto rotado.
      */
     private org.opencv.core.Point rotatePoint(org.opencv.core.Point point, org.opencv.core.Point center, double angle) {
         double radians = Math.toRadians(angle);
